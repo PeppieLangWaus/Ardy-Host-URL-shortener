@@ -108,6 +108,11 @@ expired.
   `node:22-bookworm-slim`. Expect one `ExperimentalWarning: SQLite is an
   experimental feature` line in the logs at boot — that's expected and
   harmless, not an error.
+- **Default port is 3002, not 3000.** `splash-helper-backend` (and
+  `splash-helper-alerts`) already default to 3000 and publish it to the
+  host in their own `docker-compose.yml`. Since this service is meant to
+  run alongside them, sharing that default would collide the moment both
+  stacks run on the same machine — hence a distinct default here instead.
 
 ## Local development
 
@@ -118,7 +123,7 @@ npm run dev
 ```
 
 ```bash
-curl http://localhost:3000/api/health
+curl http://localhost:3002/api/health
 ```
 
 ## Running with Docker
@@ -126,7 +131,7 @@ curl http://localhost:3000/api/health
 ```bash
 cp .env.example .env   # fill in real values
 docker compose up -d --build
-curl http://127.0.0.1:3000/api/health
+curl http://127.0.0.1:3002/api/health
 ```
 
 ## Deploying on Coolify
