@@ -1,0 +1,41 @@
+# Deployable as-is both locally (`docker compose up`, reading values from a local
+# .env — see .env.example) and in Coolify as a "Docker Compose" resource pointed
+# at this repo. Coolify parses this file directly: it creates/manages the
+# `shortener_data` volume below automatically, and auto-populates its
+# Environment Variables screen with every ${VAR} referenced below (name only,
+# no value) for you to fill in and mark as secret where noted. PORT and
+# DATABASE_PATH are internal implementation details tied to the healthcheck
+# and the volume mount, not meant to be reconfigured, so they're hardcoded
+# rather than exposed as variables.
+services:
+  shortener:
+    build: .
+    container_name: ardy-host-url-shortener
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      DATABASE_PATH: /data/links.db
+      # Domain this service is reachable at, used to build the shortUrl in API responses.
+      BASE_DOMAIN: ${BASE_DOMAIN}
+      # Exact origin+path a submitted URL must match — the first half of the anti-abuse gate.
+      SETUP_URL_PREFIX: ${SETUP_URL_PREFIX}
+      # Secret. Must be IDENTICAL to splash-helper-backend's SETUP_LINK_SECRET.
+      SETUP_LINK_SECRET: ${SETUP_LINK_SECRET}
+      # Secret. Must be IDENTICAL to splash-helper-backend's SHORTENER_API_KEY.
+      API_KEY: ${API_KEY}
+    # Host port publish — used for local `docker compose up` only. Coolify's Traefik
+    # reaches this container over its internal network by service name/port, so this
+    # binding is irrelevant to (and safe alongside) a Coolify deployment.
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - shortener_data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  shortener_data:
