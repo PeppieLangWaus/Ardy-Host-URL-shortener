@@ -14,7 +14,9 @@ export function requireEnv(name: string): string {
 }
 
 export const config = {
-  port: Number(process.env.PORT) || 3000,
+  // Deliberately not 3000 — that's already used by splash-helper-backend
+  // (and splash-helper-alerts) in this same family of services.
+  port: Number(process.env.PORT) || 3002,
   baseDomain: process.env.BASE_DOMAIN ?? 'link.ardy.host',
   setupUrlPrefix: requireEnv('SETUP_URL_PREFIX'),
   setupLinkSecret: requireEnv('SETUP_LINK_SECRET'),

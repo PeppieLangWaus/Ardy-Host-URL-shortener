@@ -13,7 +13,9 @@ services:
     container_name: ardy-host-url-shortener
     restart: unless-stopped
     environment:
-      PORT: 3000
+      # Deliberately not 3000 — that's already used by splash-helper-backend
+      # (and splash-helper-alerts) in this same family of services.
+      PORT: 3002
       DATABASE_PATH: /data/links.db
       # Domain this service is reachable at, used to build the shortUrl in API responses.
       BASE_DOMAIN: ${BASE_DOMAIN}
@@ -27,11 +29,11 @@ services:
     # reaches this container over its internal network by service name/port, so this
     # binding is irrelevant to (and safe alongside) a Coolify deployment.
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3002:3002"
     volumes:
       - shortener_data:/data
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3002/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
       interval: 30s
       timeout: 5s
       retries: 3
