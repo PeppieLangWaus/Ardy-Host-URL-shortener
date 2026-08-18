@@ -1,4 +1,5 @@
 import rateLimit from 'express-rate-limit';
+import { getClientIp } from '../utils/clientIp';
 
 /** POST /api/links: called only by our backend, but rate-limit anyway as defense in depth. */
 export const createLinkLimiter = rateLimit({
@@ -7,6 +8,7 @@ export const createLinkLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests' },
+  keyGenerator: getClientIp,
 });
 
 /** GET /:slug: public and unauthenticated by design, so throttle to blunt scraping. */
@@ -16,4 +18,5 @@ export const redirectLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests' },
+  keyGenerator: getClientIp,
 });
