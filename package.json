@@ -1,6 +1,6 @@
 {
   "name": "ardy-host-url-shortener",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Self-hosted URL shortener that only accepts Splash Helper account-setup links",
   "main": "dist/server.js",
   "engines": {
